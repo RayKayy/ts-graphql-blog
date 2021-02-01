@@ -1,6 +1,6 @@
 import { Field, ID, Int, ObjectType } from 'type-graphql';
-import Post from '../post/Post';
-import Comment from '../comment/Comment';
+import Post from '../post/typeDef';
+import Comment from '../comment/typeDef';
 
 @ObjectType()
 class User {

@@ -10,6 +10,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
 model Post {
   id        Int      @default(autoincrement()) @id
   createdAt DateTime @default(now())
@@ -19,19 +23,22 @@ model Post {
   published Boolean  @default(false)
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
+  comments Comment[]
 }
 
 model Comment {
-  id     Int     @default(autoincrement()) @id
-  body    String
-  author   User    @relation(fields: [authorId], references: [id])
-  authorId Int   
+  id        Int     @default(autoincrement()) @id
+  body      String
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  Int   
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    Int
 }
 
 model User {
-  id      Int      @default(autoincrement()) @id
-  email   String   @unique
-  name    String
-  posts   Post[]
-  comments Comment[]
+  id        Int      @default(autoincrement()) @id
+  email     String   @unique
+  name      String
+  posts     Post[]
+  comments  Comment[]
 }

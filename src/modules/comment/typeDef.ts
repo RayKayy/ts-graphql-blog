@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from 'type-graphql';
-import Post from '../post/Post';
-import User from '../user/User';
+import Post from '../post/typeDef';
+import User from '../user/typeDef';
 
 @ObjectType()
 class Comment {
@@ -8,13 +8,17 @@ class Comment {
   id!: string;
 
   @Field()
-  text!: string;
+  body!: string;
 
   @Field(type => Post)
   post!: Post;
 
+  postId!: number;
+
   @Field(type => User)
   author!: User;
+
+  authorId!: number;
 }
 
 export default Comment;
