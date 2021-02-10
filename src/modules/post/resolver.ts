@@ -11,11 +11,9 @@ import {
   FieldResolver,
   Root,
 } from 'type-graphql';
-import Post from './typeDef';
-import User from '../user/typeDef';
 import { MaxLength, Length } from 'class-validator';
 import { PrismaClient } from '@prisma/client';
-import Comment from '../comment/typeDef';
+import { Comment, User, Post } from '@generated/type-graphql';
 
 @InputType()
 class NewPostInput {

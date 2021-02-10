@@ -17,11 +17,11 @@ const prisma = new PrismaClient();
 const main = async () => {
   const schema = await buildSchema({
     resolvers: [
-      ...resolvers,
+      // ...resolvers,
       // Uncomment to use Custom Resolvers Over Generated Resolvers
-      // CustomUserResolver,
-      // CustomPostResolver,
-      // CustomCommentResolver,
+      CustomUserResolver,
+      CustomPostResolver,
+      CustomCommentResolver,
     ],
   });
 
@@ -34,6 +34,7 @@ const main = async () => {
         prisma,
       };
     },
+    subscription: true,
     graphiql: 'playground',
   });
 
