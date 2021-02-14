@@ -1,4 +1,4 @@
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 import { Resolver, Query, Arg, Ctx, FieldResolver, Root } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
 import { Comment, User, Post } from '@generated/type-graphql';

@@ -1,12 +1,12 @@
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 import {
   Resolver,
   Arg,
   Mutation,
   InputType,
-  Ctx,
   Field,
   Int,
+  Ctx,
 } from 'type-graphql';
 import { MaxLength, Length, Min, Max } from 'class-validator';
 import { PrismaClient } from '@prisma/client';

@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import mercurius from 'mercurius';
 import { buildSchema } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
+import { container, singleton } from 'tsyringe';
 
 // Custom Resolvers
 import {
@@ -22,7 +23,8 @@ import {
 
 const app = Fastify();
 
-const prisma = new PrismaClient();
+@singleton()
+class PrismaClientSingleton extends PrismaClient {}
 
 const main = async () => {
   const schema = await buildSchema({
@@ -44,10 +46,14 @@ const main = async () => {
       return {
         req,
         reply,
-        prisma,
+        prisma: container.resolve(PrismaClientSingleton),
       };
     },
-    subscription: true,
+    subscription: {
+      context: () => ({
+        prisma: container.resolve(PrismaClientSingleton),
+      }),
+    },
     graphiql: 'playground',
   });
 
@@ -65,5 +71,6 @@ GraphQL Playground: ${serverUrl}/playground
 };
 
 main().finally(async () => {
+  const prisma = container.resolve(PrismaClientSingleton);
   await prisma.$disconnect();
 });

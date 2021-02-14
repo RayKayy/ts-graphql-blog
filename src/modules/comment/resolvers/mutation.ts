@@ -12,6 +12,8 @@ import {
   Resolver,
 } from 'type-graphql';
 import { Comment } from '@generated/type-graphql';
+import { container, inject, singleton } from 'tsyringe';
+import { INJECTABLES } from '../../../constants';
 
 @InputType()
 class NewCommentInput {
@@ -31,15 +33,25 @@ class CommentMutationResolver {
   @Mutation(returns => Comment)
   async createComment(
     @Arg('data') newCommentData: NewCommentInput,
-    @Ctx('prisma') prisma: PrismaClient,
     @PubSub() pubSub: PubSubEngine,
+    @Ctx('prisma') prisma: PrismaClient,
   ) {
+    console.log(prisma);
     const comment = await prisma.comment.create({
       data: {
         ...newCommentData,
       },
     });
-    await pubSub.publish(`POST:${comment.postId}:COMMENTS`, comment);
+    await Promise.allSettled([
+      pubSub.publish(`POST:${comment.postId}:COMMENT`, {
+        data: comment,
+        mutation: 'CREATE',
+      }),
+      pubSub.publish(`COMMENT`, {
+        data: comment,
+        mutation: 'CREATE',
+      }),
+    ]);
     return comment;
   }
 }

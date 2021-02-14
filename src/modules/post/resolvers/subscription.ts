@@ -5,7 +5,7 @@ import { Post } from '@generated/type-graphql';
 @ObjectType()
 export class PostSubscriptionPayload {
   @Field()
-  post!: Post;
+  data!: Post;
 
   @Field()
   mutation!: string;
@@ -16,7 +16,7 @@ export class PostSubscriptionPayload {
 class PostSubscriptionResolver {
   @Subscription({
     topics: 'POSTS',
-    filter: ({ payload }) => payload.post.published,
+    filter: ({ payload }) => payload.data.published,
   })
   post(@Root() payload: PostSubscriptionPayload): PostSubscriptionPayload {
     console.log(payload);

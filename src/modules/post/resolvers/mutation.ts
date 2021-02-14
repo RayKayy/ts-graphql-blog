@@ -1,4 +1,4 @@
-import { singleton } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 import {
   Resolver,
   Arg,
@@ -40,15 +40,15 @@ class PostMutationResolver {
   @Mutation(returns => Post)
   async createPost(
     @Arg('data') newPostData: NewPostInput,
-    @Ctx('prisma') prisma: PrismaClient,
     @PubSub('POSTS') publish: Publisher<PostSubscriptionPayload>,
+    @Ctx('prisma') prisma: PrismaClient,
   ) {
     const post = await prisma.post.create({
       data: {
         ...newPostData,
       },
     });
-    await publish({ post, mutation: 'CREATED' });
+    await publish({ data: post, mutation: 'CREATED' });
     return post;
   }
 }
