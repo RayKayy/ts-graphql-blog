@@ -1,19 +1,16 @@
-import { inject, singleton } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import {
   Resolver,
-  Query,
   Arg,
   Mutation,
   InputType,
   Ctx,
   Field,
   Int,
-  FieldResolver,
-  Root,
 } from 'type-graphql';
 import { MaxLength, Length, Min, Max } from 'class-validator';
 import { PrismaClient } from '@prisma/client';
-import { Comment, User, Post } from '@generated/type-graphql';
+import { User } from '@generated/type-graphql';
 
 @InputType()
 class NewUserInput {
@@ -49,25 +46,7 @@ class UpdateUserInput {
 
 @singleton()
 @Resolver(of => User)
-class UserResolver {
-  constructor() {}
-
-  // Queries
-  @Query(returns => String)
-  async hello() {
-    return 'World';
-  }
-
-  @Query(returns => User)
-  async user(@Arg('id') userId: number, @Ctx('prisma') prisma: PrismaClient) {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-    return user;
-  }
-
+class UserMutationResolver {
   @Mutation(returns => User)
   async createUser(
     @Arg('data') newUserData: NewUserInput,
@@ -81,7 +60,6 @@ class UserResolver {
     return user;
   }
 
-  // Mutations
   @Mutation(returns => User)
   async updateUser(
     @Arg('id') userId: number,
@@ -111,23 +89,6 @@ class UserResolver {
     });
     return user;
   }
-
-  // Field Resolvers
-  @FieldResolver(returns => [Post])
-  async posts(@Root() user: User, @Ctx('prisma') prisma: PrismaClient) {
-    const posts = await prisma.post.findMany({
-      where: { authorId: user.id },
-    });
-    return posts;
-  }
-
-  @FieldResolver(returns => [Comment])
-  async comments(@Root() user: User, @Ctx('prisma') prisma: PrismaClient) {
-    const comments = await prisma.comment.findMany({
-      where: { authorId: user.id },
-    });
-    return comments;
-  }
 }
 
-export default UserResolver;
+export default UserMutationResolver;

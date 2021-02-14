@@ -1,42 +1,11 @@
 import { singleton } from 'tsyringe';
-import {
-  Resolver,
-  Query,
-  Arg,
-  Mutation,
-  InputType,
-  Ctx,
-  Field,
-  Int,
-  FieldResolver,
-  Root,
-} from 'type-graphql';
-import { MaxLength, Length } from 'class-validator';
+import { Resolver, Query, Arg, Ctx, FieldResolver, Root } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
 import { Comment, User, Post } from '@generated/type-graphql';
 
-@InputType()
-class NewPostInput {
-  @Field()
-  @MaxLength(30)
-  title!: string;
-
-  @Field()
-  @Length(1, 255)
-  content?: string;
-
-  @Field()
-  published!: boolean;
-
-  @Field(type => Int)
-  authorId!: number;
-}
-
 @singleton()
 @Resolver(of => Post)
-class PostResolver {
-  constructor() {}
-
+class PostQueryResolver {
   // Queries
   @Query(returns => Post)
   async post(@Arg('id') postId: number, @Ctx('prisma') prisma: PrismaClient) {
@@ -61,20 +30,6 @@ class PostResolver {
     return posts;
   }
 
-  // Mutations
-  @Mutation(returns => Post)
-  async createPost(
-    @Arg('data') newPostData: NewPostInput,
-    @Ctx('prisma') prisma: PrismaClient,
-  ) {
-    const post = await prisma.post.create({
-      data: {
-        ...newPostData,
-      },
-    });
-    return post;
-  }
-
   @FieldResolver(returns => User)
   async author(@Root() post: Post, @Ctx('prisma') prisma: PrismaClient) {
     const user = prisma.user.findUnique({
@@ -96,4 +51,4 @@ class PostResolver {
   }
 }
 
-export default PostResolver;
+export default PostQueryResolver;

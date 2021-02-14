@@ -3,12 +3,22 @@ import Fastify from 'fastify';
 import mercurius from 'mercurius';
 import { buildSchema } from 'type-graphql';
 import { PrismaClient } from '@prisma/client';
-import { resolvers } from '@generated/type-graphql';
 
 // Custom Resolvers
-import CustomUserResolver from './modules/user/resolver';
-import CustomPostResolver from './modules/post/resolver';
-import CustomCommentResolver from './modules/comment/resolver';
+import {
+  PostQueryResolver,
+  PostMutationResolver,
+  PostSubscriptionResolver,
+} from './modules/post/resolvers';
+import {
+  CommentQueryResolver,
+  CommentMutationResolver,
+  CommentSubscriptionResolver,
+} from './modules/comment/resolvers';
+import {
+  UserQueryResolver,
+  UserMutationResolver,
+} from './modules/user/resolvers';
 
 const app = Fastify();
 
@@ -17,11 +27,14 @@ const prisma = new PrismaClient();
 const main = async () => {
   const schema = await buildSchema({
     resolvers: [
-      // ...resolvers,
-      // Uncomment to use Custom Resolvers Over Generated Resolvers
-      CustomUserResolver,
-      CustomPostResolver,
-      CustomCommentResolver,
+      PostQueryResolver,
+      PostMutationResolver,
+      PostSubscriptionResolver,
+      CommentQueryResolver,
+      CommentMutationResolver,
+      CommentSubscriptionResolver,
+      UserQueryResolver,
+      UserMutationResolver,
     ],
   });
 
