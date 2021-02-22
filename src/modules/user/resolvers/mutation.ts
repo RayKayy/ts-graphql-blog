@@ -1,4 +1,5 @@
-import { inject, singleton } from 'tsyringe';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import {
   Resolver,
   Arg,
@@ -7,8 +8,9 @@ import {
   Field,
   Int,
   Ctx,
+  ObjectType,
 } from 'type-graphql';
-import { MaxLength, Length, Min, Max } from 'class-validator';
+import { MaxLength, Length, Min, Max, MinLength } from 'class-validator';
 import { PrismaClient } from '@prisma/client';
 import { User } from '@generated/type-graphql';
 
@@ -26,6 +28,15 @@ class NewUserInput {
   @Min(1)
   @Max(99)
   age?: number;
+
+  @Field()
+  @MinLength(6, {
+    message: 'Password Too Short',
+  })
+  @MaxLength(12, {
+    message: 'Password Too Long',
+  })
+  password!: string;
 }
 
 @InputType()
@@ -44,20 +55,34 @@ class UpdateUserInput {
   age?: number;
 }
 
-@singleton()
+@ObjectType()
+class CreateUserResponse {
+  @Field()
+  user!: User;
+
+  @Field()
+  token!: string;
+}
+
 @Resolver(of => User)
 class UserMutationResolver {
-  @Mutation(returns => User)
+  @Mutation(returns => CreateUserResponse)
   async createUser(
     @Arg('data') newUserData: NewUserInput,
     @Ctx('prisma') prisma: PrismaClient,
   ) {
+    const { password, ...userData } = newUserData;
+    const hashedPass = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
-        ...newUserData,
+        ...userData,
+        password: hashedPass,
       },
     });
-    return user;
+    return {
+      user,
+      token: jwt.sign({ userId: user.id }, process.env.JWT_SECRET!),
+    };
   }
 
   @Mutation(returns => User)
